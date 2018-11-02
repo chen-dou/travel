@@ -32,16 +32,17 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-    
-    .ignore >>> .swiper-pagination-bullet{
-        width:8px;
-        height:8px;
+    .banner.ignore{
+        /deep/ .swiper-pagination-bullet{
+            width:8px !important;
+            height:8px !important;
+        } 
     }
     .banner{
         width:750px;
         height:600px;
-        >>> .swiper-container{
-            height:750px;
+        /deep/ .swiper-container{
+            height:600px;
         }
     }
 </style>
