@@ -3,7 +3,7 @@
         <div class="header">
             <div class="header-left iconfont">&#xe642;</div>
             <div class="header-center"><span class="iconfont">&#xe662;</span><span>输入城市/景点/游玩主题</span></div>
-            <div class="header-right"><span class="iconfont">杭州 &#xe62b;</span></div>
+            <router-link to="city"><div class="header-right"><span class="iconfont">杭州 &#xe62b;</span></div></router-link>
         </div>
         <div class="banner ignore">
             <swiper :options="swiperOption" ref="mySwiper" v-if="swiperList.length">
@@ -293,8 +293,5 @@ export default {
         width:750px;
         height:0;
         padding-bottom:31.25%;
-        /deep/ .swiper-container{
-            
-        }
     }
 </style>
