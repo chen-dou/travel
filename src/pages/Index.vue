@@ -3,7 +3,7 @@
         <div class="header">
             <div class="header-left iconfont">&#xe642;</div>
             <div class="header-center"><span class="iconfont">&#xe662;</span><span>输入城市/景点/游玩主题</span></div>
-            <router-link to="city"><div class="header-right"><span class="iconfont">杭州 &#xe62b;</span></div></router-link>
+            <router-link to="city"><div class="header-right"><span class="iconfont">{{city}} &#xe62b;</span></div></router-link>
         </div>
         <div class="banner ignore">
             <swiper :options="swiperOption" ref="mySwiper" v-if="swiperList.length">
@@ -55,6 +55,7 @@
 </template>
 <script>
 import axios from 'axios'
+import {mapState} from 'vuex'
 export default {
     data () {
         return {
@@ -79,13 +80,10 @@ export default {
             }
         }
     },
-    async mounted(){
-        this.getData()
-    },
     methods:{
         async getData(){
             try{
-                let res = await axios.get('/api/index.json')
+                let res = await axios.get(`/api/index.json?city=${this.city}`)
                 res = res.data
                 if(res.ret&&res.data){
                     res = res.data
@@ -100,6 +98,7 @@ export default {
         }
     },
     computed:{
+        ...mapState(['city']),
         navPage(){
             let arr = []
             let page = ''
@@ -111,6 +110,16 @@ export default {
                 arr[page].push(item)
             })
             return arr                
+        }
+    },
+    async mounted(){
+        this.lastCity = this.city
+        this.getData()
+    },
+    activated(){
+        if(this.lastCity!==this.city){
+            this.lastCity = this.city
+            this.getData()
         }
     }
 }
@@ -264,7 +273,7 @@ export default {
             }
         }
         .header-right{
-            width:132px;
+            min-width:132px;
             text-align:center;
             color:#fff;
             line-height:88px;

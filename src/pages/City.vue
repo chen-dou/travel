@@ -1,112 +1,194 @@
 <template>
     <div>
-        <div class="header">
+        <div class="header" ref="header">
             <div class="header-top">
                 <router-link to="/"><div class="iconfont">&#xe642;</div></router-link>
                 <h3>城市选择</h3>
             </div>
             <div class="header-bottom">
-                <input type="text" placeholder="输入城市名或拼音">
+                <input type="text" v-model="keyword" placeholder="输入城市名或拼音">
             </div>
+            <div class="search-content" v-show="keyword" ref="search">
+                <ul>
+                    <li v-for="item in searchList" :key="item.id" @click="handleCityClick(item.name)">{{item.name}}</li>
+                    <li v-show="hasNoData">没有找到匹配数据</li>
+                </ul>
+            </div>  
         </div>
         <div class="list-wrap" ref="wrapper">
             <div>
-            <div class="list">
-                <div class="currentcity city">
-                    <h4>当前城市</h4>
-                    <ul>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                    </ul>
+                <div class="list">
+                    <div class="currentcity city">
+                        <h4>当前城市</h4>
+                        <ul>
+                            <li class="border">{{city}}</li>
+                        </ul>
+                    </div>
+                    <div class="currentcity city">
+                        <h4>热门城市</h4>
+                        <ul>
+                            <li class="border" v-for="item in hotCities" :key="item.id" @click="handleCityClick(item.name)">{{item.name}}</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="currentcity city">
-                    <h4>热门城市</h4>
-                    <ul>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                        <li class="border">上海</li>
-                    </ul>
+                <div class="citysort">
+                    <div class="city" v-for="(item,key) in cities" :Key="key" :ref="key">
+                        <h4>{{key}}</h4>
+                        <ul>
+                            <li v-for="innerItem in item" :key="innerItem.id" @click="handleCityClick(innerItem.name)">{{innerItem.name}}</li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <div class="citysort">
-                <div class="city">
-                    <h4>A</h4>
-                    <ul>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                    </ul>
-                </div>
-                <div class="city">
-                    <h4>B</h4>
-                    <ul>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                    </ul>
-                </div>
-                <div class="city">
-                    <h4>C</h4>
-                    <ul>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                    </ul>
-                </div>
-                <div class="city">
-                    <h4>D</h4>
-                    <ul>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                        <li>阿拉尔</li>
-                    </ul>
-                </div>
-            </div>
             </div>
         </div>
         <div class="character">
             <ul>
-                <li>A</li>
-                <li>A</li>
-                <li>A</li>
-                <li>A</li>
-                <li>A</li>
-                <li>A</li>
+                <li v-for="item in letters" :key="item" :ref="item+item" @click="handleLetterClick(item)" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">{{item}}</li>
             </ul>
         </div>        
     </div>
 </template>
 <script>
 import BScroll from 'better-scroll'
+import axios from 'axios'
+import {mapActions,mapState} from 'vuex'
 export default {
     data(){
         return {
-            msg:'123'
+            cities:{},
+            hotCities:[],
+            letter:'',
+            touchStatus:false,
+            keyword:'',
+            searchList:[]
         }
     },
-    mounted(){
-        this.scroll = new BScroll(this.$refs.wrapper)
-    }     
+    methods:{
+        handleCityClick(city){
+            this.changeCity(city)
+            this.$router.push('/')
+        },
+        ...mapActions(['changeCity']),
+        getCityInfo(){
+            return new Promise((resolve,reject)=>{
+                axios.get('/api/city.json').then((res)=>{
+                    res = res.data
+                    if(res.ret&&res.data){
+                        const data = res.data
+                        this.cities = data.cities
+                        this.hotCities = data.hotCities
+                    }
+                    resolve()
+                }) 
+            })
+               
+        },
+        handleLetterClick(letter){
+            this.letter = letter
+        },
+        handleTouchStart(){
+            this.touchStatus = true        
+        },
+        handleTouchMove(e){
+            if(this.touchStatus){
+                if(this.timer2){
+                    clearTimeout(this.timer2)
+                }
+                this.timer2 = setTimeout(()=>{
+                    const touchY = e.touches[0].clientY-this.headerH
+                    const index = Math.floor((touchY-this.startY)/18)
+                    if(index>=0 && index<this.letters.length){
+                        this.letter = this.letters[index]
+                    }        
+                },16)
+            }    
+        },
+        handleTouchEnd(){
+            this.touchStatus = false
+        }
+    },
+    watch:{
+        letter(){
+            const element = this.$refs[this.letter][0]
+            this.scroll.scrollToElement(element)
+        },
+        keyword(){
+            if(this.timer){
+                clearTimeout(this.timer)
+            }
+            if(!this.keyword){
+               this.searchList = []
+                return
+            }
+            this.timer = setTimeout(()=>{
+                const result = []
+                for(let i in this.cities){
+                    this.cities[i].forEach((v,k)=>{
+                        if(v.name.indexOf(this.keyword)!=-1||v.spell.indexOf(this.keyword)!=-1){
+                            result.push(v)
+                        }
+                    })
+                }
+                this.searchList = result
+                this.$nextTick(()=>{
+                    this.scroll2 = new BScroll(this.$refs.search,{click:true})     
+                })
+            },100)
+        }    
+    },
+    computed:{
+        ...mapState([
+            'city'
+        ]),
+        hasNoData(){
+           return !this.searchList.length
+        },
+        letters(){
+            var letters = []
+            for(let i in this.cities){
+                letters.push(i)
+            }        
+            return letters
+        }
+    },
+    async mounted(){
+        this.scroll = new BScroll(this.$refs.wrapper,{
+            click: true
+        })
+        await this.getCityInfo()
+        this.$nextTick(()=>{
+            this.startY = this.$refs.AA[0].offsetTop
+            this.headerH = this.$refs.header.offsetHeight 
+        })
+    }
 }
 </script>
 <style lang="scss" scoped>
+    .search-content{
+        position:absolute;
+        top:165px;
+        bottom:0;
+        left:0;
+        right:0;
+        z-index:999;
+        background:#eee;
+        overflow:hidden;
+        li{
+            line-height:62px;
+            padding-left:20px;
+            background:#fff;
+            color:#666;
+            font-size:28px;
+        }
+    }
     .character{
         position:fixed;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
         right:10px;
-        top:660px;
+        top:165px;
+        bottom:0;
         li{
             font-size:20px;
             color:#ccc;
