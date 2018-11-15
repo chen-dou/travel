@@ -27,13 +27,13 @@
             <h3>猜你喜欢</h3>
             <div class="list">
                 <ul>
-                    <li v-for="item in recommendList" :key="item.id" class="border-bottom">
+                    <router-link tag="li" v-for="item in recommendList" :key="item.id" class="border-bottom" :to="`/detail/${item.id}`">
                         <img :src="item.imgUrl"/>
                         <div class="list-right">
                             <p class="title">{{item.title}}</p>
                             <p class="desc">{{item.desc}}</p>
                         </div>
-                    </li>
+                    </router-link>
                 </ul>
             </div>
         </div>
@@ -41,13 +41,13 @@
             <h3>周末去哪儿</h3>
             <div class="list">
                 <ul>
-                    <li v-for="item in weekendList" :key="item.id">
+                    <router-link tag="li" v-for="item in weekendList" :key="item.id" :to="`/detail/${item.id}`">
                         <img :src="item.imgUrl"/>
                         <div class="list-right">
                             <p class="title">{{item.title}}</p>
                             <p class="desc">{{item.desc}}</p>
                         </div>
-                    </li>
+                    </router-link>
                 </ul>
             </div>
         </div>
@@ -57,6 +57,7 @@
 import axios from 'axios'
 import {mapState} from 'vuex'
 export default {
+    name:'Index',
     data () {
         return {
             lastCity: '',
