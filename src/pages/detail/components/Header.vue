@@ -56,6 +56,7 @@ export default {
         border-radius:40px;
     }
     .header-fixed{
+        z-index:999;
         position:fixed;
         top:0;
         left:0;
