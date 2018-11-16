@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api':{
-        target: 'http://localhost:80',  
+        target: 'http://www.chendou.com.cn:80',  
         changeOrigin: true,
         pathRewrite: {         
             '^/api': '/api'  
